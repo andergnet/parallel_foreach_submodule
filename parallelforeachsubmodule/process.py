@@ -5,11 +5,12 @@ import os
 
 
 class PFSProcess(object):
-    def __init__(self, submodule, path, cmd, counter, output_filter="", cmd_func=None, output_func=None):
+    def __init__(self, submodule, path, cmd, filter_branch, counter, output_filter="", cmd_func=None, output_func=None):
         self.__submodule = submodule
         self.__path = path
         self.__cwd = os.path.join(self.__path, self.__submodule)
         self.__cmd = cmd
+        self.__filter_branch = filter_branch
         self.__counter = counter
         self.__output_filter = output_filter
         self.__active_branch = self.get_current_branch(self.__cwd)[:-1]
@@ -24,6 +25,9 @@ class PFSProcess(object):
         return sub.check_output(['git', '-C', path, 'rev-parse', '--abbrev-ref', 'HEAD']).decode('utf-8')
 
     def run(self):
+        if ( self.__filter_branch != self.__active_branch):
+            return
+
         is_empty = True
         self.__output = "\n\n" + self.__submodule + "\n"
         # self.__output = sub.check_output(self.__cmd)

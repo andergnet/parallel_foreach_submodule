@@ -13,13 +13,13 @@ import time
 import multiprocessing
 
 
-def worker(submodule_list, path, command, counter, output_filter="", cmd_func=None, output_func=None):
+def worker(submodule_list, path, command, filter_branch, counter, output_filter="", cmd_func=None, output_func=None):
     if isinstance(submodule_list, Scheduler):
         while not submodule_list.empty():
-            PFSProcess(submodule_list.get(), path, command, counter, output_filter, cmd_func, output_func).run()
+            PFSProcess(submodule_list.get(), path, command, filter_branch, counter, output_filter, cmd_func, output_func).run()
     else:
         for submodule in submodule_list:
-            PFSProcess(submodule, path, command, counter, output_filter, cmd_func, output_func).run()
+            PFSProcess(submodule, path, command, filter_branch, counter, output_filter, cmd_func, output_func).run()
 
 
 class PFS(object):
@@ -36,6 +36,8 @@ class PFS(object):
         parser.add_argument('-c', '--command', dest='command', help='Command to execute',
                             # type=self.empty_cmd,
                             default="")
+        parser.add_argument('--filter', dest='filter_branch',
+                            help='Execute this command only in modules that have an specific branch.')
         parser.add_argument('-s', '--schedule', dest='schedule', help='Scheduling strategy', default='load-share',
                             choices=['CHUNK', 'LOAD-SHARE'],
                             type=lambda s: s.upper())
@@ -69,8 +71,8 @@ class PFS(object):
                               if str(output)[:-1].find(self.args.not_in_branch) == -1 else "In branch -> " + output),
         }
 
-        self.__submodule_path_pattern = re.compile('path ?= ?([A-za-z0-9-_]+)(\/[A-za-z0-9-_]+)*([A-za-z0-9-_])')
-        self.__path_pattern = re.compile(' ([A-za-z0-9-_]+)(\/[A-za-z0-9-_]+)*([A-za-z0-9-_])')
+        self.__submodule_path_pattern = re.compile('path ?= ?([A-za-z0-9-_]+)(\\/[A-za-z0-9-_]+)*([A-za-z0-9-_])')
+        self.__path_pattern = re.compile(' ([A-za-z0-9-_]+)(\\/[A-za-z0-9-_]+)*([A-za-z0-9-_])')
 
     @staticmethod
     def exists_path(path):
@@ -174,11 +176,11 @@ class PFS(object):
         for i in range(self.args.jobs):
             if self.args.schedule == "load-share":
                 t = threading.Thread(target=worker,
-                                     args=(scheduler, self.args.path, command, self.__counter,
+                                     args=(scheduler, self.args.path, command, self.args.filter_branch, self.__counter,
                                            output_filter, command_function, output_function,))
             else:
                 t = threading.Thread(target=worker,
-                                     args=(list_submodule_list[i], self.args.path, command, self.__counter,
+                                     args=(list_submodule_list[i], self.args.path, command, self.args.filter_branch, self.__counter,
                                            output_filter, command_function, output_function,))
             self.__threads.append(t)
             t.start()
