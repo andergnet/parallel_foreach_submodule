@@ -37,7 +37,7 @@ class PFS(object):
                             # type=self.empty_cmd,
                             default="")
         parser.add_argument('--filter', dest='filter_branch',
-                            help='Execute this command only in modules that have an specific branch.')
+                            help='Execute this command only in modules that have an specific branch')
         parser.add_argument('-s', '--schedule', dest='schedule', help='Scheduling strategy', default='load-share',
                             choices=['CHUNK', 'LOAD-SHARE'],
                             type=lambda s: s.upper())
