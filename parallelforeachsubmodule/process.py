@@ -25,7 +25,7 @@ class PFSProcess(object):
         return sub.check_output(['git', '-C', path, 'rev-parse', '--abbrev-ref', 'HEAD']).decode('utf-8')
 
     def run(self):
-        if ( self.__filter_branch != self.__active_branch):
+        if (self.__filter_branch and self.__filter_branch != self.__active_branch):
             return
 
         is_empty = True
