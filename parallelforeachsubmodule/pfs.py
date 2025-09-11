@@ -41,7 +41,7 @@ class PFS(object):
                             type=lambda s: s.upper())
         parser.add_argument('-j', '--jobs', dest='jobs',
                             help='Number of concurrent jobs. Use -j 0 to use automatically the best maximum number of jobs',
-                            type=self.valid_jobs, default=2)
+                            type=self.valid_jobs, default=0)
         parser.add_argument('--pull', dest='pull', action='store_true',
                             help='Shortcut to "git pull origin"')
         parser.add_argument('--pending', dest='pending', action='store_true',
